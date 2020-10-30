@@ -41,7 +41,7 @@ matrix_vix = convertSeriesToMatrix(vector_vix, sequence_length)
 matrix_vix = np.array(matrix_vix)
 shifted_value = matrix_vix.mean()
 matrix_vix -= shifted_value
-print "Data  shape: ", matrix_vix.shape
+print ("Data  shape: ", matrix_vix.shape)
 
 # split dataset: 90% for training and 10% for testing
 train_row = int(round(0.9 * matrix_vix.shape[0]))
@@ -64,23 +64,26 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 # build the model
 model = Sequential()
 # layer 1: LSTM
-model.add(LSTM( input_dim=1, output_dim=50, return_sequences=True))
+model.add(LSTM(units=100, input_shape=(19, 1), return_sequences=True))
 model.add(Dropout(0.2))
 # layer 2: LSTM
-model.add(LSTM(output_dim=100, return_sequences=False))
+model.add(LSTM(100, return_sequences=False))
 model.add(Dropout(0.2))
 # layer 3: dense
 # linear activation: a(x) = x
-model.add(Dense(output_dim=1, activation='linear'))
+model.add(Dense(units=1))
+model.add(Activation('linear'))
 # compile the model
 model.compile(loss="mse", optimizer="rmsprop")
+print(model.summary())
+
 
 # train the model
-model.fit(X_train, y_train, batch_size=512, nb_epoch=50, validation_split=0.05, verbose=1)
+model.fit(X_train, y_train, batch_size=512, epochs=50, validation_split=0.05, verbose=1)
 
 # evaluate the result
 test_mse = model.evaluate(X_test, y_test, verbose=1)
-print '\nThe mean squared error (MSE) on the test data set is %.3f over %d test samples.' % (test_mse, len(y_test))
+print ('\nThe mean squared error (MSE) on the test data set is %.3f over %d test samples.' % (test_mse, len(y_test)))
 
 # get the predicted values
 predicted_values = model.predict(X_test)
@@ -97,6 +100,6 @@ plt.show()
 fig.savefig('output_prediction.jpg', bbox_inches='tight')
 
 # save the result into txt file
-test_result = zip(predicted_values, y_test) + shifted_value
+test_result = list(zip(predicted_values, y_test)) + shifted_value
 np.savetxt('output_result.txt', test_result)
 
