@@ -12,18 +12,20 @@ from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential
 
+
 # define a function to convert a vector of time series into a 2D matrix
 def convertSeriesToMatrix(vectorSeries, sequence_length):
-    matrix=[]
+    matrix = []
     for i in range(len(vectorSeries)-sequence_length+1):
         matrix.append(vectorSeries[i:i+sequence_length])
     return matrix
-        
+
+
 # random seed
 np.random.seed(1234)
 
 # load the data
-path_to_dataset = 'vix_2005_2016.csv'
+path_to_dataset = 'convertcsv.csv'
 sequence_length = 20
 
 # vector to store the time series
@@ -32,7 +34,7 @@ with open(path_to_dataset) as f:
     next(f) # skip the header row
     for line in f:
         fields = line.split(',')
-        vector_vix.append(float(fields[6]))
+        vector_vix.append(float(fields[52]))
 
 # convert the vector to a 2D matrix
 matrix_vix = convertSeriesToMatrix(vector_vix, sequence_length)
@@ -42,7 +44,7 @@ matrix_vix = np.array(matrix_vix)
 shifted_value = matrix_vix.mean()
 matrix_vix -= shifted_value
 print ("Data  shape: ", matrix_vix.shape)
-
+print(matrix_vix.shape[0])
 # split dataset: 90% for training and 10% for testing
 train_row = int(round(0.9 * matrix_vix.shape[0]))
 train_set = matrix_vix[:train_row, :]
@@ -52,7 +54,7 @@ np.random.shuffle(train_set)
 # the training set
 X_train = train_set[:, :-1]
 # the last column is the true value to compute the mean-squared-error loss
-y_train = train_set[:, -1] 
+y_train = train_set[:, -1]
 # the test set
 X_test = matrix_vix[train_row:, :-1]
 y_test = matrix_vix[train_row:, -1]
@@ -92,10 +94,11 @@ predicted_values = np.reshape(predicted_values, (num_test_samples,1))
 
 # plot the results
 fig = plt.figure()
-plt.plot(y_test + shifted_value)
-plt.plot(predicted_values + shifted_value)
+plt.plot(y_test + shifted_value, label='real VIX')
+plt.plot(predicted_values + shifted_value, label='predicted VIX')
 plt.xlabel('Date')
 plt.ylabel('VIX')
+plt.legend()
 plt.show()
 fig.savefig('output_prediction.jpg', bbox_inches='tight')
 
