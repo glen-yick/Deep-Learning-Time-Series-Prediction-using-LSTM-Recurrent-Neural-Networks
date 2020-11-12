@@ -101,12 +101,12 @@ train_set = matrix_vix[:train_row, :]
 # shuffle the training set (but do not shuffle the test set)
 np.random.shuffle(train_set)
 # the training set
-X_train = train_set[:, 2:-1]
+X_train = train_set[:, :-1]
 # the last column is the true value to compute the mean-squared-error loss
-y_train = train_set[:, 1]
+y_train = train_set[:, -1]
 # the test set
-X_test = matrix_vix[train_row:, 2:-1]
-y_test = matrix_vix[train_row:, 1]
+X_test = matrix_vix[train_row:, :-1]
+y_test = matrix_vix[train_row:, -1]
 
 # the input to LSTM layer needs to have the shape of (number of samples, the dimension of each element)
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
@@ -115,7 +115,7 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 # build the model
 model = Sequential()
 # layer 1: LSTM
-model.add(LSTM(units=100, input_shape=(17, 1), return_sequences=True))
+model.add(LSTM(units=100, input_shape=(19, 1), return_sequences=True))
 model.add(Dropout(0.2))
 # layer 2: LSTM
 model.add(LSTM(100, return_sequences=False))
